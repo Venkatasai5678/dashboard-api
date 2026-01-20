@@ -16,7 +16,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReact",
        policy =>
        {
-           policy.WithOrigins("http://localhost:5174").AllowAnyHeader().AllowAnyMethod();
+           policy.WithOrigins("http://localhost:5174").AllowAnyHeader().AllowAnyMethod().
+           AllowCredentials(); // 🔥 REQUIRED FOR COOKIES;
        });
 });
 

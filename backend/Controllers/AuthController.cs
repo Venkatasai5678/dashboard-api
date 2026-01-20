@@ -23,12 +23,33 @@ namespace backend.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] User login)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Username == login.Username && u.Password == login.Password);
+            // 1️⃣ Validate username & password (DB check)
+            var user = _context.Users
+                .FirstOrDefault(u => u.Username == login.Username
+                                  && u.Password == login.Password);
 
-            if (user == null) return Unauthorized();
+            if (user == null)
+                return Unauthorized("Invalid credentials");
 
+            // 2️⃣ Create JWT (same as before)
             var token = _authService.GenerateJwtToken(user);
-            return Ok(new { token });
+
+            // 3️⃣ STORE JWT IN HTTP-ONLY COOKIE ✅
+            Response.Cookies.Append(
+                "access_token",              // cookie name
+                token,                       // JWT value
+                new CookieOptions
+                {
+                    HttpOnly = true,          // 🔐 JS cannot read
+                    Secure = false,           // true in production (HTTPS)
+                    SameSite = SameSiteMode.Strict, // 🛡 CSRF protection
+                    Expires = DateTime.UtcNow.AddMinutes(60)
+                }
+            );
+
+            // 4️⃣ Return simple response (NO TOKEN)
+            return Ok(new { message = "Login successful" });
         }
+
     }
 }
