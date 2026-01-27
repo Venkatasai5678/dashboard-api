@@ -15,7 +15,7 @@ namespace backend.Services
         {
             _config = config;
         }
-        //h
+        //hgfg
         public string GenerateJwtToken(User user)
         {
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
