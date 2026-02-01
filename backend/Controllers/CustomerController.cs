@@ -54,18 +54,18 @@ namespace backend.Controllers
         [HttpPost("Save")]
         public async Task<IActionResult> SaveCustomerDetails([FromBody] Customer customer)
         {
-            if (customer == null) return BadRequest("Invalid Customer data");
+            if (customer == null)
+                return BadRequest(new { success = false, message = "Invalid data" });
 
-            try
+            await _customerService.AddCustomerAsync(customer);
+
+            return Ok(new
             {
-                await _customerService.AddCustomerAsync(customer);
-                return Ok("Customer saved successfully.");
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+                success = true,
+                message = "Customer saved successfully"
+            });
         }
+
 
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateCustomer(int id, [FromBody] Customer updatedCustomer)
@@ -104,6 +104,19 @@ namespace backend.Controllers
                 return StatusCode(500, "fdzs");
             }
         }
+
+
+        [HttpGet("TestError")]
+        public IActionResult TestError()
+        {
+            int a = 10;
+            int b = 0;
+
+            int result = a / b; // 💥 DivideByZeroException
+
+            return Ok(result);
+        }
+
 
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201124748_Drop_Docttoe_table")]
+    partial class Drop_Docttoe_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,12 +36,6 @@ namespace backend.Migrations
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DoctorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DoctorId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("DoctorNotes")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -51,10 +48,6 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AppointmentId");
-
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("DoctorId1");
 
                     b.HasIndex("PatientId");
 
@@ -125,27 +118,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CustomerEdits");
-                });
-
-            modelBuilder.Entity("ModelEntity.MODEL.Doctor", b =>
-                {
-                    b.Property<int>("DoctorId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Specialization")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("DoctorId");
-
-                    b.ToTable("Doctor");
                 });
 
             modelBuilder.Entity("ModelEntity.MODEL.EmployeeName", b =>
@@ -296,33 +268,13 @@ namespace backend.Migrations
 
             modelBuilder.Entity("ModelEntity.MODEL.Appointment", b =>
                 {
-                    b.HasOne("ModelEntity.MODEL.Doctor", null)
-                        .WithMany()
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_Emp_Dept_Reference");
-
-                    b.HasOne("ModelEntity.MODEL.Doctor", "Doctor")
-                        .WithMany("Appointments")
-                        .HasForeignKey("DoctorId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ModelEntity.MODEL.Patient", "Patient")
                         .WithMany("Appointments")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Doctor");
-
                     b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("ModelEntity.MODEL.Doctor", b =>
-                {
-                    b.Navigation("Appointments");
                 });
 
             modelBuilder.Entity("ModelEntity.MODEL.Patient", b =>

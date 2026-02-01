@@ -1,25 +1,69 @@
 ﻿using backend.Data;
+using backend.MiddleWares;
 using backend.Repositories;
 using backend.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Serilog;
+using Serilog.Events;
 using System.Security.Claims;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+
+    // ❌ Errors → FILE
+    .WriteTo.File(
+        "Logs/errors-.txt",
+        rollingInterval: RollingInterval.Day,
+        restrictedToMinimumLevel: LogEventLevel.Error
+    )
+
+    // ✅ Success + Errors → DB
+    .WriteTo.MSSqlServer(
+        connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+        sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+        {
+            TableName = "ApplicationLogs",
+            AutoCreateSqlTable = true
+        },
+        restrictedToMinimumLevel: LogEventLevel.Information
+    )
+
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+Log.Information("🚀 Serilog startup test log");
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowReact",
+//       policy =>
+//       {
+//           policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().
+//           AllowCredentials(); // 🔥 REQUIRED FOR COOKIES;
+//       });
+//});
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReact",
-       policy =>
-       {
-           policy.WithOrigins("http://localhost:5174").AllowAnyHeader().AllowAnyMethod().
-           AllowCredentials(); // 🔥 REQUIRED FOR COOKIES;
-       });
+    options.AddPolicy("AllowReact", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -58,19 +102,21 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+
+// 🔥 1. CORS MUST BE FIRST
 app.UseCors("AllowReact");
 
-// Configure the HTTP request pipeline.
+// 🔥 2. Global exception handling (wraps everything)
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
+// 🔥 3. HTTPS redirect
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); // <-- Add this BEFORE UseAuthorization
+// 🔥 4. Authentication & Authorization
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseExceptionHandler("/error");
 
- 
-
+// 🔥 5. Controllers
 app.MapControllers();
-
 
 app.Run();

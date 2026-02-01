@@ -3,6 +3,7 @@ using backend.Repositories;
 using ModelEntity.MODEL;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace backend.Services
 {
@@ -32,8 +33,20 @@ namespace backend.Services
 
         public async Task AddCustomerAsync(Customer customer)
         {
-            // You can add business logic/validation here before adding
+            // ✅ INFO log → goes to DB
+            Log.Information(
+                "Customer save started. Name: {Name}, Email: {Gmail}",
+                customer.Name,
+                customer.Gmail
+            );
+
             await _customerRepository.AddCustomerAsync(customer);
+
+            // ✅ INFO log → goes to DB
+            Log.Information(
+                "Customer saved successfully. CustomerId: {CustomerId}",
+                customer.Id
+            );
         }
         public async Task UpdateCustomerAsync(Customer updatedCustomer)
         {

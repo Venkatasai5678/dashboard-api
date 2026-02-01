@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201074741_news")]
+    partial class news
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,13 +39,6 @@ namespace backend.Migrations
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DoctorId1")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DoctorNotes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
@@ -53,8 +49,6 @@ namespace backend.Migrations
                     b.HasKey("AppointmentId");
 
                     b.HasIndex("DoctorId");
-
-                    b.HasIndex("DoctorId1");
 
                     b.HasIndex("PatientId");
 
@@ -296,23 +290,16 @@ namespace backend.Migrations
 
             modelBuilder.Entity("ModelEntity.MODEL.Appointment", b =>
                 {
-                    b.HasOne("ModelEntity.MODEL.Doctor", null)
-                        .WithMany()
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_Emp_Dept_Reference");
-
                     b.HasOne("ModelEntity.MODEL.Doctor", "Doctor")
                         .WithMany("Appointments")
-                        .HasForeignKey("DoctorId1")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ModelEntity.MODEL.Patient", "Patient")
                         .WithMany("Appointments")
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Doctor");
