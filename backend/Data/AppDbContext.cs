@@ -15,6 +15,8 @@ namespace backend.Data
         public DbSet<User> Users { get; set; }
         public DbSet<CustomerEdit> CustomerEdits { get; set; }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
 
         // Will create this new table
         public DbSet<Customer> CustomerDetails { get; set; }

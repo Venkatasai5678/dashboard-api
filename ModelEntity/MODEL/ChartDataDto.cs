@@ -10,7 +10,7 @@ namespace ModelEntity.MODEL
     {
         public int id { get; set; }
         public string Label { get; set; }      
-        public decimal Value { get; set; }
+        public double Value { get; set; }
         public DateTime Fromdate { get; set; }
         public DateTime Todate { get; set; }
     }

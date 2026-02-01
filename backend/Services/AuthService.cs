@@ -1,8 +1,8 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
-using backend.MODEL;
 using ModelEntity.MODEL;
 
 namespace backend.Services
@@ -36,6 +36,15 @@ namespace backend.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+
+        // 🔁 REFRESH TOKEN → LONG LIVED (random secure string)
+        public string GenerateRefreshToken()
+        {
+            return Convert.ToBase64String(
+                RandomNumberGenerator.GetBytes(64)
+            );
         }
     }
 }
