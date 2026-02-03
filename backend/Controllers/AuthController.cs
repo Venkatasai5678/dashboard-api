@@ -91,6 +91,28 @@ namespace backend.Controllers
                 !rt.IsRevoked &&
                 rt.ExpiresAt > DateTime.UtcNow
             );
+            //hgjhgbngffghfgh
+            if (storedToken == null)
+                return Unauthorized();
+
+            // 3️⃣ Get user
+            var user = _context.Users
+                .FirstOrDefault(u => u.Username == storedToken.Username);
+
+            if (user == null)
+                return Unauthorized();
+
+            // 4️⃣ Issue NEW access token (JWT – 15 mins)
+            var newAccessToken = _authService.GenerateJwtToken(user);
+
+            // 5️⃣ Update access token cookie
+            Response.Cookies.Append("access_token", newAccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(15)
+            });
 
             if (storedToken == null)
                 return Unauthorized();
